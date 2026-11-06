@@ -1,0 +1,22 @@
+[Unit]
+Description=Portal Globaltech ACS (GenieACS NBI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=portal
+Group=portal
+WorkingDirectory=/opt/globaltech-portal
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/globaltech-portal/data
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+# Configurações com senhas/tokens (só os .example vão para o Git)
+*.env
+.env
+!*.env.example
+!.env.example
+
+# Backups do servidor feitos pelo deploy-acs.js
+acs/backups/
+
+# Dados do portal em produção
+portal/data/
+portal/vendor/
+node_modules/
+
+# Sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,15 @@
+{
+    "weight":  0,
+    "channel":  "inform",
+    "events":  {
+                   "2 PERIODIC":  true
+               },
+    "precondition":  "",
+    "configurations":  [
+                           {
+                               "type":  "provision",
+                               "name":  "inform",
+                               "args":  null
+                           }
+                       ]
+}

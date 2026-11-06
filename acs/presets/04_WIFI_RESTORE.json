@@ -1,0 +1,15 @@
+{
+    "weight":  0,
+    "channel":  "wifi",
+    "events":  {
+
+               },
+    "precondition":  "Tags.RESTORE_WIFI IS NOT NULL",
+    "configurations":  [
+                           {
+                               "type":  "provision",
+                               "name":  "wifi_restore",
+                               "args":  null
+                           }
+                       ]
+}

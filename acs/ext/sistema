@@ -1,0 +1,112 @@
+#!/usr/bin/env node
+// Extensão GenieACS: consulta o contrato do cliente no SGP pelo MAC (ext("sistema", "pppoeLoginByMac", mac))
+// Credenciais ficam em /opt/genieacs/sgp.env (SGP_APP e SGP_TOKEN), fora do código.
+
+const fs = require("fs");
+const https = require("https");
+
+const ENV_FILE = process.env.SGP_ENV_FILE || "/opt/genieacs/sgp.env";
+const HOST = "suaempresa.sgp.net.br";
+const PATH = "/api/ura/consultacliente";
+// Por requisição. pppoeLoginByMac pode fazer 2 consultas: as duas juntas precisam caber no
+// GENIEACS_EXT_TIMEOUT (padrão 3000 ms). O SGP costuma responder em ~300 ms.
+const TIMEOUT_MS = Number(process.env.SGP_TIMEOUT_MS || 1400);
+
+function credentials() {
+  const env = {};
+  try {
+    for (const line of fs.readFileSync(ENV_FILE, "utf8").split(/\r?\n/)) {
+      const m = line.match(/^\s*([A-Z_]+)\s*=\s*(.*?)\s*$/);
+      if (m) env[m[1]] = m[2].replace(/^["']|["']$/g, "");
+    }
+  } catch (e) {
+    // sem arquivo: tratado abaixo como erro de configuração
+  }
+  return { app: env.SGP_APP, token: env.SGP_TOKEN, host: env.SGP_HOST || HOST };
+}
+
+// No SGP, o serviço IPoE tem como login o MAC WAN no formato "0cef-1507-d70b"
+function macToLogin(mac) {
+  const h = String(mac || "").replace(/[^0-9a-f]/gi, "").toLowerCase();
+  return h.length === 12 ? h.match(/.{4}/g).join("-") : "";
+}
+
+// Consulta o SGP com um filtro (ex.: { servico_serial } ou { login }).
+// Responde o contrato, null quando não há contrato, ou { error } quando o SGP falha.
+// Falha vira valor (e não exceção) para não gerar fault no canal "default" e travar as outras provisions.
+function consultar(filtro, callback) {
+  let finished = false;
+  const done = (err, value) => {
+    if (finished) return;
+    finished = true;
+    callback(null, err ? { error: err.message } : value);
+  };
+
+  const { app, token, host } = credentials();
+  if (!app || !token) return done(new Error(`SGP: credenciais ausentes em ${ENV_FILE}`));
+
+  const body = JSON.stringify({ ...filtro, app, token });
+  const req = https.request({
+    hostname: host,
+    port: 443,
+    path: PATH,
+    method: "POST",
+    timeout: TIMEOUT_MS,
+    headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) },
+  }, (res) => {
+    let data = "";
+    res.setEncoding("utf8");
+    res.on("data", (c) => (data += c));
+    res.on("end", () => {
+      if (res.statusCode !== 200) {
+        return done(new Error(`SGP HTTP ${res.statusCode}: ${data.slice(0, 150)}`));
+      }
+      let parsed;
+      try {
+        parsed = JSON.parse(data);
+      } catch (e) {
+        return done(new Error("SGP devolveu resposta que não é JSON"));
+      }
+      const c = parsed.contratos && parsed.contratos[0];
+      if (!c) return done(null, null);
+      done(null, {
+        cliente: c.clienteId,
+        contrato: c.contratoId,
+        username: c.servico_login,
+        password: c.servico_senha,
+        wifi_ssid: c.servico_wifi_ssid,
+        wifi_password: c.servico_wifi_password,
+        wifi_channel: c.servico_wifi_channel,
+        wifi_ssid_5: c.servico_wifi_ssid_5,
+        wifi_password_5: c.servico_wifi_password_5,
+        wifi_channel_5: c.servico_wifi_channel_5,
+      });
+    });
+  });
+
+  req.on("timeout", () => req.destroy(new Error(`SGP não respondeu em ${TIMEOUT_MS} ms`)));
+  req.on("error", (e) => done(new Error(`SGP: ${e.message}`)));
+  req.write(body);
+  req.end();
+}
+
+// ext("sistema", "contratoPorSerial", serial): o SGP liga o serviço ao ACS pelo serial do equipamento
+function contratoPorSerial(args, callback) {
+  const serial = String(args[0] || "").trim();
+  if (!serial) return callback(null, null);
+  consultar({ servico_serial: serial }, callback);
+}
+
+// ext("sistema", "pppoeLoginByMac", mac): busca pelo login IPoE (MAC WAN) e, se não achar, pelo campo MAC DHCP
+function pppoeLoginByMac(args, callback) {
+  const mac = String(args[0] || "");
+  const login = macToLogin(mac);
+  if (!login) return callback(null, null);
+  consultar({ login }, (err, r) => {
+    if (r) return callback(null, r);
+    consultar({ mac_dhcp: mac }, callback);
+  });
+}
+
+exports.contratoPorSerial = contratoPorSerial;
+exports.pppoeLoginByMac = pppoeLoginByMac;

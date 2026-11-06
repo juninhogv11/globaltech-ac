@@ -1,0 +1,14 @@
+{
+  "name": "globaltech-portal",
+  "version": "1.0.0",
+  "description": "Portal de gerência Globaltech sobre a API NBI do GenieACS",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "add-user": "node scripts/add-user.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

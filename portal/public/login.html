@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar · Globaltech ACS</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/app.css?v=10">
+</head>
+<body>
+  <div class="login-page">
+    <form class="login-card" id="form">
+      <div class="brand">
+        <div class="brand-logo">G</div>
+        <div><b>Globaltech ACS</b><small>Portal de gerência</small></div>
+      </div>
+      <div id="err" class="error-box" hidden></div>
+      <label for="username">Usuário</label>
+      <input id="username" name="username" autocomplete="username" required autofocus>
+      <label for="password">Senha</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button class="btn primary" type="submit">Entrar</button>
+    </form>
+  </div>
+  <script>
+    const form = document.getElementById("form");
+    const err = document.getElementById("err");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      err.hidden = true;
+      const btn = form.querySelector("button");
+      btn.disabled = true;
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: form.username.value.trim(), password: form.password.value }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Falha no login");
+        location.href = "/";
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.hidden = false;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

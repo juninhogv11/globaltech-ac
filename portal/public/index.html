@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Globaltech ACS</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/app.css?v=13">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo">G</div>
+        <div><b>Globaltech ACS</b><small>Portal de gerência</small></div>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="#/" data-route="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          Dashboard</a>
+        <div class="nav-section">ACS</div>
+        <a href="#/devices" data-route="devices">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M6 17h.01M10 17h.01M7 13l5-9 5 9"/></svg>
+          Dispositivos</a>
+        <a href="#/faults" data-route="faults">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+          Falhas</a>
+        <div class="nav-section">Configuração</div>
+        <a href="#/provisions" data-route="provisions">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>
+          Provisions</a>
+        <a href="#/presets" data-route="presets">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+          Presets</a>
+        <a href="#/virtual_parameters" data-route="virtual_parameters">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+          Virtual Parameters</a>
+      </nav>
+      <div class="user-box">
+        <div class="avatar" id="avatar">?</div>
+        <div class="grow"><b id="username">…</b><small>Administrador</small></div>
+        <button class="btn sm" id="logout">Sair</button>
+      </div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn sm menu-btn" id="menu" aria-label="Menu">☰</button>
+        <b id="page-title">Dashboard</b>
+        <span class="muted" id="updated"></span>
+      </header>
+      <main class="content" id="view"></main>
+    </div>
+  </div>
+  <div id="overlay" role="status" aria-live="polite" hidden>
+    <div class="overlay-box">
+      <div id="overlay-icon" class="ov-spinner"></div>
+      <div id="overlay-msg"></div>
+    </div>
+  </div>
+  <script src="/vendor/chart.umd.js"></script>
+  <script src="/app.js?v=14"></script>
+</body>
+</html>

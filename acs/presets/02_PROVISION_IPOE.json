@@ -1,0 +1,15 @@
+{
+    "weight":  0,
+    "channel":  "default",
+    "events":  {
+
+               },
+    "precondition":  "Tags.Provisioned IS NULL",
+    "configurations":  [
+                           {
+                               "type":  "provision",
+                               "name":  "provision_ipoe",
+                               "args":  null
+                           }
+                       ]
+}

@@ -1,0 +1,15 @@
+{
+    "weight":  0,
+    "channel":  "default",
+    "events":  {
+
+               },
+    "precondition":  "",
+    "configurations":  [
+                           {
+                               "type":  "provision",
+                               "name":  "default",
+                               "args":  null
+                           }
+                       ]
+}

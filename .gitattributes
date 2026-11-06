@@ -1,0 +1,5 @@
+# Tudo com fim de linha LF no repositório (os scripts rodam em Linux)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary

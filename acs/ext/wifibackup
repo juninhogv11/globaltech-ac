@@ -1,0 +1,72 @@
+#!/usr/bin/env node
+// Extensão GenieACS: Wi-Fi guardado para restaurar após reset de fábrica.
+// ext("wifibackup", "get", serial) -> JSON {"source", "wifi": {"2.4GHz": {ssid, pass}, "5GHz": {...}}} ou "" se não houver.
+// Ordem: cópia do portal (gravada ao alterar o Wi-Fi pelo portal) e, se não houver, os campos de Wi-Fi do contrato no SGP.
+
+const fs = require("fs");
+const http = require("http");
+const path = require("path");
+
+// Endereço do portal: WIFI_PORTAL_URL no mesmo arquivo de configuração da extensão "sistema"
+const ENV_FILE = process.env.SGP_ENV_FILE || "/opt/genieacs/sgp.env";
+const TIMEOUT_MS = 1200;
+
+function portalUrl() {
+  try {
+    const m = fs.readFileSync(ENV_FILE, "utf8").match(/^\s*WIFI_PORTAL_URL\s*=\s*["']?([^"'\r\n]+)/m);
+    if (m) return m[1].trim().replace(/\/+$/, "");
+  } catch (e) {
+    // sem arquivo: usa a variável de ambiente
+  }
+  return (process.env.WIFI_PORTAL_URL || "").replace(/\/+$/, "");
+}
+
+function fromPortal(serial, cb) {
+  const PORTAL = portalUrl();
+  if (!PORTAL) return cb(null);
+  let finished = false;
+  const done = (v) => { if (!finished) { finished = true; cb(v); } };
+  const req = http.get(`${PORTAL}/internal/wifi/${encodeURIComponent(serial)}`, { timeout: TIMEOUT_MS }, (res) => {
+    let data = "";
+    res.setEncoding("utf8");
+    res.on("data", (c) => (data += c));
+    res.on("end", () => {
+      if (res.statusCode !== 200) return done(null);
+      try {
+        const j = JSON.parse(data);
+        done(j && j.wifi ? { source: "portal", wifi: j.wifi } : null);
+      } catch (e) {
+        done(null);
+      }
+    });
+  });
+  req.on("timeout", () => req.destroy());
+  req.on("error", () => done(null));
+}
+
+function fromSgp(serial, cb) {
+  let sistema;
+  try {
+    sistema = require(path.join(__dirname, "sistema"));
+  } catch (e) {
+    return cb(null);
+  }
+  sistema.contratoPorSerial([serial], (err, c) => {
+    if (!c || c.error) return cb(null);
+    const wifi = {};
+    if (c.wifi_ssid && c.wifi_password) wifi["2.4GHz"] = { ssid: c.wifi_ssid, pass: c.wifi_password };
+    if (c.wifi_ssid_5 && c.wifi_password_5) wifi["5GHz"] = { ssid: c.wifi_ssid_5, pass: c.wifi_password_5 };
+    cb(Object.keys(wifi).length ? { source: "sgp", wifi } : null);
+  });
+}
+
+function get(args, callback) {
+  const serial = String(args[0] || "").trim();
+  if (!serial) return callback(null, "");
+  fromPortal(serial, (p) => {
+    if (p) return callback(null, JSON.stringify(p));
+    fromSgp(serial, (s) => callback(null, s ? JSON.stringify(s) : ""));
+  });
+}
+
+exports.get = get;

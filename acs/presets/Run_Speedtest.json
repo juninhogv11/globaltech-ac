@@ -1,0 +1,14 @@
+{
+    "weight":  0,
+    "events":  {
+
+               },
+    "precondition":  "Tags.RUN_SPEEDTEST IS NOT NULL",
+    "configurations":  [
+                           {
+                               "type":  "provision",
+                               "name":  "speedtest",
+                               "args":  null
+                           }
+                       ]
+}

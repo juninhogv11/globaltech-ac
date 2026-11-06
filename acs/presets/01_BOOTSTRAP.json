@@ -1,0 +1,15 @@
+{
+    "weight":  0,
+    "channel":  "default",
+    "events":  {
+                   "0 BOOTSTRAP":  true
+               },
+    "precondition":  "",
+    "configurations":  [
+                           {
+                               "type":  "provision",
+                               "name":  "bootstrap",
+                               "args":  null
+                           }
+                       ]
+}
