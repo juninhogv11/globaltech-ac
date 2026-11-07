@@ -92,6 +92,8 @@ function normalize(doc) {
     registered: doc._registered || null,
     online,
     uptime: uptimeNow(doc, online),
+    // Tem fibra (ONU/ONT)? MikroTik e roteadores TR-098 não têm Device.Optical
+    hasOptical: rx !== null || !!get(doc, "Device.Optical.Interface.1"),
     // Gravados pela provision_ipoe como tags SGP_CLIENTE_<id> / SGP_CONTRATO_<id>
     sgpCliente: sgpTag(doc._tags, "CLIENTE"),
     sgpContrato: sgpTag(doc._tags, "CONTRATO"),

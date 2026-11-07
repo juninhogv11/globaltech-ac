@@ -101,9 +101,10 @@ tinham alguns desses endereços fixos no código.
 
 | Preset | Quando | O que faz |
 |---|---|---|
-| `01_BOOTSTRAP` | evento `0 BOOTSTRAP` (reset de fábrica ou novo ACS) | tira a tag `Provisioned` e marca `RESTORE_WIFI` (sem `clear()`, que causava `preset_loop`) |
-| `02_PROVISION_IPOE` | enquanto não houver tag `Provisioned` | URL do ACS, credenciais do Connection Request; consulta o SGP **pelo serial** e, se não achar, **pelo login = MAC WAN** (`xxxx-xxxx-xxxx`); grava as tags `SGP_CLIENTE_<id>` e `SGP_CONTRATO_<id>`; sem contrato → tag `ERRO_SGP` |
-| `04_WIFI_RESTORE` (canal `wifi`) | tag `RESTORE_WIFI` | só se o Wi-Fi voltou ao padrão `TP-Link_XXXX`: grava nome e senha guardados (portal ou SGP) |
+| `01_BOOTSTRAP` | evento `0 BOOTSTRAP` (reset de fábrica, reinício pela OLT no XX530v ou novo ACS) | só marca a tag `BOOTSTRAP_PENDING` (não mexe em outras tags nem usa `clear()`: preset de evento roda a cada ciclo da sessão e geraria `preset_loop`) |
+| `02_PROVISION_IPOE` | sem tag `Provisioned` **ou** com `BOOTSTRAP_PENDING` | URL do ACS, credenciais do Connection Request; consulta o SGP **pelo serial** e, se não achar, **pelo login = MAC WAN** (`xxxx-xxxx-xxxx`); grava as tags `SGP_CLIENTE_<id>` e `SGP_CONTRATO_<id>`; sem contrato → tag `ERRO_SGP` |
+| `04_WIFI_RESTORE` (canal `wifi`) | tag `BOOTSTRAP_PENDING` | só se o Wi-Fi voltou ao padrão `TP-Link_XXXX`: grava nome e senha guardados (portal ou SGP) |
+| `05_BOOTSTRAP_DONE` (canal `bootstrap`) | `2 PERIODIC` com `BOOTSTRAP_PENDING` | tira a marca `BOOTSTRAP_PENDING` no primeiro inform periódico, fora da sessão do BOOTSTRAP |
 | `default` | todo inform | leitura periódica (IP, sinal óptico RX/TX, Wi-Fi, hosts) e virtual parameters |
 | `inform` | `2 PERIODIC` | intervalo de inform, NTP, atualização diária da árvore |
 

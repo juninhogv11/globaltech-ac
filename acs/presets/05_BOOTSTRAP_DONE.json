@@ -1,0 +1,7 @@
+{
+  "weight": 0,
+  "channel": "bootstrap",
+  "events": {"2 PERIODIC": true},
+  "precondition": "Tags.BOOTSTRAP_PENDING IS NOT NULL",
+  "configurations": [{"type": "provision", "name": "bootstrap_done", "args": null}]
+}

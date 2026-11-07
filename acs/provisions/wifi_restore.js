@@ -1,11 +1,11 @@
 // Restaura o Wi-Fi principal (nome e senha) depois de um reset de fábrica.
-// Roda pelo preset 04_WIFI_RESTORE quando a provision "bootstrap" marca a tag RESTORE_WIFI.
+// Roda pelo preset 04_WIFI_RESTORE enquanto existir a tag BOOTSTRAP_PENDING (marcada pela provision "bootstrap").
 // Só grava se o Wi-Fi estiver no padrão de fábrica (TP-Link_XXXX): um BOOTSTRAP sem reset não altera nada.
 const now = Date.now();
 
 function encerrar(msg) {
   log(">>> [WIFI] " + msg);
-  declare("Tags.RESTORE_WIFI", null, {value: false});
+  // Não mexe em tags: a marca é tirada pelo preset 05_BOOTSTRAP_DONE (evita preset_loop)
 }
 
 // Só TR-181 (XX530v) por enquanto

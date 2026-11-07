@@ -584,8 +584,8 @@ async function pageDevice(id) {
           <div class="status-line">${statusBadge(d)}
             <span class="muted">${d.online ? (d.uptime !== null ? "ligado há " + fmtUptime(d.uptime) : "") : "último contato " + timeAgo(d.lastInform)}</span>
             ${provBadge(d)}</div>
-          ${d.rx === null && d.tx === null && root !== "Device"
-            ? `<div class="muted">Este equipamento é um roteador sem fibra; o sinal óptico fica na ONU/ONT que está antes dele.</div>`
+          ${!d.hasOptical
+            ? `<div class="muted">Este equipamento é um roteador sem fibra (sem interface óptica); o sinal óptico fica na ONU/ONT que está antes dele.</div>`
             : `<div class="gauges">
             ${gauge("ONU Rx 1490nm", d.rx, RX_GAUGE)}
             ${gauge("ONU Tx 1310nm", d.tx, TX_GAUGE)}
